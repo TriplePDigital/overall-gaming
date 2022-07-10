@@ -1,4 +1,4 @@
 {
-	"cSpell.words": ["supabase"],
-	"conventionalCommits.scopes": ["general"]
+	"cSpell.words": ["Lato", "supabase"],
+	"conventionalCommits.scopes": ["general", "auth"]
 }

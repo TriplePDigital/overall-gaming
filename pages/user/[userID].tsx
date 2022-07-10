@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../utils/supabaseClient'
+import { supabase } from '../../utils/supabaseClient'
+import { useAuth } from '../../context/auth'
 
-export default function Account({ session }) {
+export default function Account() {
 	const [loading, setLoading] = useState(true)
 	const [username, setUsername] = useState(null)
 	const [website, setWebsite] = useState(null)
 	const [avatar_url, setAvatarUrl] = useState(null)
 
+	console.log(useAuth())
+
 	useEffect(() => {
 		getProfile()
-	}, [session])
+	}, [])
 
 	async function getProfile() {
 		try {
@@ -65,9 +68,11 @@ export default function Account({ session }) {
 		}
 	}
 
+	console.log(username)
+
 	return (
 		<div className="form-widget">
-			<div>
+			{/* <div>
 				<label htmlFor="email">Email</label>
 				<input
 					id="email"
@@ -75,7 +80,7 @@ export default function Account({ session }) {
 					value={session.user.email}
 					disabled
 				/>
-			</div>
+			</div> */}
 			<div>
 				<label htmlFor="username">Name</label>
 				<input
