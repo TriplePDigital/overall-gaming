@@ -16,8 +16,8 @@ export function AuthProvider({ children }) {
 
 		// Listen for changes on auth state (logged in, signed out, etc.)
 		const { data: listener } = supabase.auth.onAuthStateChange(
-			async (event, session) => {
-				setUser(session?.user ?? null)
+			async (event, ses) => {
+				setUser(ses?.user ?? null)
 				setLoading(false)
 			}
 		)
@@ -27,7 +27,6 @@ export function AuthProvider({ children }) {
 		}
 	}, [])
 
-	// Will be passed down to Signup, Login and Dashboard components
 	const value = {
 		signUp: (data) => supabase.auth.signUp(data),
 		signIn: (data) => supabase.auth.signIn(data),
