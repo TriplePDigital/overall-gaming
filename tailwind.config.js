@@ -1,10 +1,13 @@
-/** @type {import('tailwindcss').Config} */
+/* eslint-disable global-require */
+/**
+ * @type {import('@types/tailwindcss/tailwind-config').TailwindConfig}
+ * */
 module.exports = {
 	content: [
 		'./pages/**/*.{html,js,jsx,tsx,ts}',
 		'./components/**/*.{html,js,jsx,tsx,ts}',
 		'./utils/**/*.{html,js,jsx,tsx,ts}',
-		'node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}',
+		'./node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}',
 	],
 	theme: {
 		extend: {
