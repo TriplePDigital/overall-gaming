@@ -22,6 +22,11 @@
 				"ts": "never",
 				"tsx": "never"
 			}
-		]
+		],
+		"camelcase": "warn",
+		"no-shadow": "warn"
+	},
+	"globals": {
+		"JSX": true
 	}
 }
