@@ -6,22 +6,12 @@ import { Dropdown, Avatar } from 'flowbite-react'
 import { FaBars } from 'react-icons/fa'
 import { AiOutlineClose } from 'react-icons/ai'
 import { useUser } from '@supabase/auth-helpers-react'
-import { supabase } from '../utils/supabaseClient'
 
 function Navigation() {
 	const { user } = useUser()
-	const router = useRouter()
 	const [toggleOpen, setToggleOpen] = useState(false)
-
-	const handleLogout = async () => {
-		try {
-			await supabase.auth.signOut()
-			router.push('/')
-			return
-		} catch (error) {
-			throw new Error(error.message)
-		}
-	}
+	const router = useRouter()
+	const { pathname } = router
 
 	return (
 		<nav
@@ -53,7 +43,13 @@ function Navigation() {
 					>
 						<li className="relative ">
 							<Link href="/gamers" passHref>
-								<a className="after:visible after:opacity-0 hover:after:opacity-100 after:absolute after:left-0 after:bottom-0 after:w-full after:h-1 after:bg-white transition-opacity after:transition-opacity">
+								<a
+									className={`after:visible ${
+										pathname.includes('/gamers')
+											? 'after:opacity-100'
+											: 'after:opacity-0'
+									}  hover:after:opacity-100 after:absolute after:left-0 after:bottom-0 after:w-full after:h-1 after:bg-white transition-opacity after:transition-opacity`}
+								>
 									Gamers
 								</a>
 							</Link>
@@ -91,7 +87,7 @@ function Navigation() {
 								<FaBars size={24} />
 							)}
 						</button>
-						<ul className="flex gap-2">
+						<ul className="flex gap-2 z-20">
 							{user ? (
 								<Dropdown
 									arrowIcon={false}
@@ -126,19 +122,13 @@ function Navigation() {
 											{user.email}
 										</span>
 									</Dropdown.Header>
-									<Dropdown.Item>
-										<Link href={`/user/${user.id}`}>
-											Settings
-										</Link>
-									</Dropdown.Item>
+									<Link href={`/user/${user.id}`}>
+										<Dropdown.Item>Settings</Dropdown.Item>
+									</Link>
 									<Dropdown.Divider />
-									<Dropdown.Item>
-										<Link
-											href={`/api/auth/logout?returnTo=/`}
-										>
-											Sign out
-										</Link>
-									</Dropdown.Item>
+									<Link href="/auth/logout">
+										<Dropdown.Item>Sign out</Dropdown.Item>
+									</Link>
 								</Dropdown>
 							) : (
 								<ul className="text-white font-medium uppercase tracking-wider flex gap-2">

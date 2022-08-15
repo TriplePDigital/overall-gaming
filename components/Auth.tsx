@@ -4,25 +4,19 @@ import Image from 'next/image'
 import { AiOutlineLeft } from 'react-icons/ai'
 import { FaDiscord, FaGoogle } from 'react-icons/fa'
 import Link from 'next/link'
-import { supabase } from '../utils/supabaseClient'
+import { supabaseClient as supabase } from '@supabase/auth-helpers-nextjs'
 
 export default function Auth() {
 	const [loading, setLoading] = useState(false)
 	const [email, setEmail] = useState('')
-	const [error, setError] = useState('')
 
 	const handleLogin = async (email: string): Promise<any> => {
 		setLoading(true)
-		if (!email) {
-			setError('Please enter an email')
-			setLoading(false)
-			return
-		}
 		try {
 			const { error } = await supabase.auth.signIn({ email })
 			if (error) throw error
-		} catch (error) {
-			throw new Error(error.message)
+		} catch (err: any) {
+			throw new Error(err.message)
 		} finally {
 			setLoading(false)
 		}
@@ -33,19 +27,10 @@ export default function Auth() {
 		try {
 			const { error } = await supabase.auth.signIn({ provider })
 			if (error) throw error
-		} catch (error) {
-			throw new Error(error.message)
+		} catch (err: any) {
+			throw new Error(err.message)
 		} finally {
 			setLoading(false)
-		}
-	}
-
-	const signInWithDiscord = async () => {
-		const { user, session, error } = await supabase.auth.signIn({
-			provider: 'discord',
-		})
-		if (error) {
-			throw new Error(error.message)
 		}
 	}
 
@@ -148,10 +133,6 @@ export default function Auth() {
 							{loading ? 'Loading' : 'Login using Google'}
 						</span>
 					</button>
-
-					<div className="col-6 form-widget">
-						<div></div>
-					</div>
 				</div>
 			</div>
 		</section>

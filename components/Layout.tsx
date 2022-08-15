@@ -1,13 +1,16 @@
-import React from 'react'
-import Navigation from '../components/Navigation'
+import * as React from 'react'
 import { useRouter } from 'next/router'
+import Navigation from './Navigation'
 
-function Layout({ children }) {
+type LayoutProps = {
+	children: React.ReactNode | React.ReactNode[] | JSX.Element | JSX.Element[]
+}
+
+function Layout({ children }: LayoutProps) {
 	const router = useRouter()
-	console.log(router.pathname === '/' ? 'true' : 'false')
 
 	return (
-		<main className="h-screen w-screen">
+		<main className="h-screen">
 			{!router.pathname.includes('auth') && <Navigation />}
 			<section
 				className={`${
