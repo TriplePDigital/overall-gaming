@@ -1,23 +1,29 @@
 import { useState, useEffect } from 'react'
-import { useUser } from '@supabase/auth-helpers-react'
-import { supabase } from '../../utils/supabaseClient'
+import Image from 'next/image'
+import {
+	supabaseClient as supabase,
+	withPageAuth,
+} from '@supabase/auth-helpers-nextjs'
 import Loader from '../../components/Loader'
 
-export default function Account() {
-	const [loading, setLoading] = useState(true)
-	const [username, setUsername] = useState(null)
-	const [website, setWebsite] = useState(null)
-	const [avatarUrl, setAvatarUrl] = useState(null)
+interface Profile {
+	id: string
+	username: string
+	website: string
+	avatar_url: string
+}
 
-	async function getProfile() {
+export default function Account({ user }: { user: Profile }) {
+	const [loading, setLoading] = useState(true)
+	const [profile, setProfile] = useState({} as Profile)
+
+	async function getProfile(dbUser: { id: string }) {
 		try {
 			setLoading(true)
-			const user = supabase.auth.user()
-
 			const { data, error, status } = await supabase
-				.from('profiles')
+				.from<Profile>('profiles')
 				.select('username, website, avatar_url')
-				.eq('id', user.id)
+				.eq('id', dbUser.id)
 				.single()
 
 			if (error && status !== 406) {
@@ -25,28 +31,37 @@ export default function Account() {
 			}
 
 			if (data) {
-				setUsername(data.username)
-				setWebsite(data.website)
-				setAvatarUrl(data.avatar_url)
+				setProfile({
+					id: dbUser.id,
+					username: data.username,
+					website: data.website,
+					avatar_url: data.avatar_url,
+				})
 			}
-		} catch (error) {
+		} catch (error: any) {
 			throw new Error(error.message)
 		} finally {
 			setLoading(false)
 		}
 	}
 
-	const { user } = useUser()
-
-	async function updateProfile({ username, website, avatar_url }) {
+	async function updateProfile({
+		username,
+		website,
+		avatarUrl,
+	}: {
+		username: string
+		website: string
+		avatarUrl: string
+	}) {
 		try {
 			setLoading(true)
 
 			const updates = {
-				id: user.id,
+				id: user!.id,
 				username,
 				website,
-				avatar_url,
+				avatar_url: avatarUrl,
 				updated_at: new Date(),
 			}
 
@@ -57,7 +72,7 @@ export default function Account() {
 			if (error) {
 				throw error
 			}
-		} catch (error) {
+		} catch (error: any) {
 			throw new Error(error.message)
 		} finally {
 			setLoading(false)
@@ -65,21 +80,37 @@ export default function Account() {
 	}
 
 	useEffect(() => {
-		getProfile()
-	}, [])
+		if (user) getProfile(user)
+	}, [user])
 
 	return loading ? (
 		<Loader />
 	) : (
 		<div className="mx-auto w-1/3 flex flex-col items-center">
+			<div className="my-2 w-1/2 h-64 rounded-full overflow-hidden relative shadow">
+				<Image
+					src={profile.avatar_url}
+					alt={profile.username}
+					layout="fill"
+					objectFit="cover"
+					objectPosition="center"
+					loading="lazy"
+					quality={50}
+				/>
+			</div>
 			<div className="my-2 w-full">
 				<label htmlFor="username">Name</label>
 				<input
 					className="w-full block border border-gray-200 focus:border-og-500 rounded px-5 py-3 focus:ring-og-500 focus:ring-1 focus:outline-none shadow-md"
 					id="username"
 					type="text"
-					defaultValue={username || ''}
-					onChange={(e) => setUsername(e.target.value)}
+					defaultValue={profile.username || ''}
+					onChange={(e) =>
+						setProfile(() => ({
+							...profile,
+							username: e.target.value,
+						}))
+					}
 				/>
 			</div>
 			<div className="my-2 w-full">
@@ -89,15 +120,24 @@ export default function Account() {
 					id="website"
 					type="website"
 					placeholder="https://example.com"
-					defaultValue={website || ''}
-					onChange={(e) => setWebsite(e.target.value)}
+					defaultValue={profile.website || ''}
+					onChange={(e) =>
+						setProfile(() => ({
+							...profile,
+							website: e.target.value,
+						}))
+					}
 				/>
 			</div>
 
 			<button
 				className="bg-og-500 text-white w-full rounded px-7 py-4 block mt-5 shadow-md font-medium"
 				onClick={() =>
-					updateProfile({ username, website, avatar_url: avatarUrl })
+					updateProfile({
+						username: profile.username,
+						website: profile.website,
+						avatarUrl: profile.avatar_url,
+					})
 				}
 				disabled={loading}
 			>
@@ -106,3 +146,5 @@ export default function Account() {
 		</div>
 	)
 }
+
+export const getServerSideProps = withPageAuth({ redirectTo: '/auth/login' })
